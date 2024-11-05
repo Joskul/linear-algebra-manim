@@ -10,43 +10,26 @@ class IntroToLinearTransformation(Scene):
         title = Text("Intro to Linear Transformation", font_size=48)
         subtitle = Text("Definition of Linear Transformations",
                         font_size=36).next_to(title, DOWN)
-        definition = Text(
-            "Linear transformations map vectors to other vectors\n"
-            "while preserving properties: \n1. Lines remain straight,\n"
-            "2. The origin remains fixed.",
-            font_size=24
-        ).shift(DOWN * 2)
 
         self.play(Write(title), Write(subtitle))
         self.wait(WAIT_TIME)
-        self.next_section(
-            name="Definition of Linear Transformation", skip_animations=False)
-        self.play(FadeIn(definition))
-        self.wait(WAIT_TIME)
 
         # Slide 2: Visualizing Vectors and Grid
-        self.play(FadeOut(title), FadeOut(subtitle), FadeOut(definition))
         self.next_section(name="Visualizing Transformation",
                           skip_animations=False)
-
-        label = Text("Visualizing Linear Transformations",
-                     font_size=36).shift(UP * 3)
+        self.play(FadeOut(title), FadeOut(subtitle))
         grid = NumberPlane(
             x_range=[-20, 20], y_range=[-20, 20],
             background_line_style={"stroke_opacity": 0.4}
         )
 
         # Initial vector
-        vector_1 = Vector(2 * RIGHT + 1 * UP, color=BLUE)
-        annotation_1 = MathTex(
-            r"\vec{v}_1 = \begin{bmatrix} 2 \\ 1 \end{bmatrix}").next_to(vector_1.get_end())
+        vector = Vector([1, 2], color=YELLOW)
+        vector_label = vector.coordinate_label().next_to(vector.get_end())
+        vector_label.add_updater(lambda m: m.become(
+            vector.coordinate_label().next_to(vector.get_end())))
 
-        # Target vector after transformation
-        vector_2 = Vector(3 * RIGHT + 1 * UP, color=GREEN)
-        annotation_2 = MathTex(
-            r"\vec{v}_2 = \begin{bmatrix} 3 \\ 1 \end{bmatrix}").next_to(vector_2.get_end())
-
-        self.play(FadeIn(grid), GrowArrow(vector_1), Write(annotation_1))
+        self.play(FadeIn(grid), GrowArrow(vector), Write(vector_label))
         self.wait(WAIT_TIME)
 
         # Slide 3: Display Shear Transformation Matrix
@@ -54,78 +37,58 @@ class IntroToLinearTransformation(Scene):
                           skip_animations=False)
 
         # Define shear transformation matrix
-        shear_matrix = [[1, 1], [0, 1]]
-        matrix_tex = MathTex(
-            r"\text{Shear Matrix: } \begin{bmatrix} 1 & 1 \\ 0 & 1 \end{bmatrix}"
-        ).to_corner(UL)
+        matrix = np.array([[1, 1], [0, 1]])
+        matrix_obj = Matrix(matrix).to_corner(UL)
 
-        self.play(Write(matrix_tex))
+        self.play(Write(matrix_obj))
         self.wait(WAIT_TIME)
 
         # Slide 4: Apply Shear Transformation
         self.next_section(name="Applying Shear Transformation",
                           skip_animations=False)
 
+        # vector = matrix.dot(vector)
+
         self.play(
-            ReplacementTransform(vector_1, vector_2),
-            ReplacementTransform(annotation_1, annotation_2),
-            grid.animate.apply_matrix(shear_matrix)
+            ApplyMatrix(matrix, vector),
+            ApplyMatrix(matrix, grid)
         )
         self.wait(WAIT_TIME)
 
         conclusion = Text(
-            "The shear matrix maps the first vector to the second", font_size=28).shift(DOWN * 2)
+            "A vector can be transformed using a matrix.", font_size=28).shift(DOWN * 2)
 
         self.next_section(name="Conclusion", skip_animations=False)
         self.play(Write(conclusion))
 
         # Slide 4: Display Rotation Matrix
         self.next_section(name="Rotation Matrix", skip_animations=False)
-        self.play(FadeOut(grid), FadeOut(vector_2), FadeOut(
-            annotation_2), FadeOut(matrix_tex), FadeOut(conclusion))
-        self.wait(WAIT_TIME)
-
-        grid = NumberPlane(
-            x_range=[-20, 20], y_range=[-20, 20],
-            background_line_style={"stroke_opacity": 0.4}
-        )
-
-        # Initial vector
-        vector_1 = Vector(2 * RIGHT + 1 * UP, color=BLUE)
-        annotation_1 = MathTex(
-            r"\vec{v}_1 = \begin{bmatrix} 2 \\ 1 \end{bmatrix}").next_to(vector_1.get_end())
-
-        # Target vector after transformation
-        vector_2 = Vector(-1 * RIGHT + 2 * UP, color=GREEN)
-        annotation_2 = MathTex(
-            r"\vec{v}_2 = \begin{bmatrix} -1 \\ 2 \end{bmatrix}").next_to(vector_2.get_end())
-
-        self.play(FadeIn(grid), GrowArrow(vector_1), Write(annotation_1))
+        self.play(FadeOut(conclusion))
         self.wait(WAIT_TIME)
 
         # Define rotation transformation matrix
-        rotation_matrix = [[0, -1], [1, 0]]  # 90 degrees counterclockwise
-        matrix_tex = MathTex(
-            r"\text{Rotation Matrix: } \begin{bmatrix} 0 & -1 \\ 1 & 0 \end{bmatrix}"
-        ).to_corner(UL)
+        # 90 degrees counterclockwise
+        matrix_2 = np.array([[-1, 0], [0.5, -1]])
+        matrix_2_obj = Matrix(matrix_2).to_corner(UL)
 
-        self.play(Write(matrix_tex))
+        self.play(matrix_obj.animate.next_to(
+            matrix_2_obj, RIGHT), Write(matrix_2_obj))
         self.wait(WAIT_TIME)
 
         # Slide 5: Apply Rotation Transformation
         self.next_section(
             name="Applying Rotation Transformation", skip_animations=False)
 
+        # vector = matrix_2.dot(vector)
         self.play(
-            ReplacementTransform(vector_1, vector_2),
-            ReplacementTransform(annotation_1, annotation_2),
-            grid.animate.apply_matrix(rotation_matrix)
+            ApplyMatrix(matrix_2, vector),
+            ApplyMatrix(matrix_2, grid)
         )
         self.wait(WAIT_TIME)
 
         # Slide 6: Conclusion
         conclusion = Text(
-            "The rotation matrix rotates the first vector to the second", font_size=28
+            "Multiple transformations can be applied at once.", font_size=28
         ).shift(DOWN * 2)
 
         self.next_section(name="Conclusion", skip_animations=False)
@@ -133,7 +96,7 @@ class IntroToLinearTransformation(Scene):
         self.wait(WAIT_TIME)
 
 
-class VisualizingTransformationsWithExternalImage(Scene):
+class VisualizingTransformations(Scene):
     def construct(self):
 
         # Slide 1: Title and Intro
@@ -163,8 +126,9 @@ class VisualizingTransformationsWithExternalImage(Scene):
             i_hat.get_end(), DOWN)
         j_hat_label = MathTex(r"\hat{j}", color=BLUE).next_to(
             j_hat.get_end(), LEFT)
+        i_hat_label.add_updater(lambda m: m.next_to(i_hat.get_end()))
+        j_hat_label.add_updater(lambda m: m.next_to(j_hat.get_end()))
 
-        # External image as a sample object (assuming 'house.png' is in the working directory)
         shape_1 = Triangle().scale(0.5).set_color(YELLOW).shift(UP + RIGHT)
         shape_2 = Cube().scale(0.2).set_color(BLUE).shift(DOWN * 3 + RIGHT * 1.6)
         shape_3 = Square().scale(0.4).set_color(GREEN).shift(DOWN * 2.5 + LEFT * 1.2)
@@ -183,24 +147,10 @@ class VisualizingTransformationsWithExternalImage(Scene):
 
         # Shear matrix for transformation
         shear_matrix = [[1, 1], [0, 1]]
+        shear_matrix_obj = Matrix(shear_matrix).set_column_colors(
+            RED, BLUE).to_corner(UL)
 
-        # Define individual matrix elements with color
-        shear_matrix_element_11 = MathTex(str(shear_matrix[0][0]), color=RED)
-        shear_matrix_element_12 = MathTex(str(shear_matrix[0][1]), color=BLUE)
-        shear_matrix_element_21 = MathTex(str(shear_matrix[1][0]), color=RED)
-        shear_matrix_element_22 = MathTex(str(shear_matrix[1][1]), color=BLUE)
-
-        # Arrange matrix elements in a grid structure to form a matrix
-        shear_matrix_group = VGroup(
-            MathTex("[").scale(3.0),
-            VGroup(shear_matrix_element_11, shear_matrix_element_21).arrange(
-                DOWN, buff=0.5),
-            VGroup(shear_matrix_element_12, shear_matrix_element_22).arrange(
-                DOWN, buff=0.5),
-            MathTex("]").scale(3.0),
-        ).arrange(RIGHT, buff=0.5).to_corner(UL)
-
-        self.play(Write(shear_matrix_group))
+        self.play(Write(shear_matrix_obj))
         self.wait(WAIT_TIME)
 
         # Transform the grid, basis vectors, and image
@@ -211,9 +161,8 @@ class VisualizingTransformationsWithExternalImage(Scene):
             ApplyMatrix(shear_matrix, grid),
             ApplyMatrix(shear_matrix, i_hat),
             ApplyMatrix(shear_matrix, j_hat),
-            i_hat_label.animate.move_to(i_hat.get_end() + DOWN * 0.3),
-            j_hat_label.animate.move_to(j_hat.get_end() + LEFT * 0.3),
         )
+
         self.wait(WAIT_TIME)
 
         # Slide 4: Explanation
@@ -231,28 +180,13 @@ class VisualizingTransformationsWithExternalImage(Scene):
         self.play(FadeOut(explanation))
 
         rotation_matrix = [[0.7071, -0.7071], [0.7071, 0.7071]]
+        rotation_matrix_obj = Matrix([[r"\cos{\theta}", r"-\sin{\theta}"],
+                                      [r"\sin{\theta}", r"\cos{\theta}"]]).set_column_colors(
+            RED, BLUE).to_corner(UL)
 
-        rotation_matrix_element_11 = MathTex(
-            r"\cos{\theta}", color=RED)
-        rotation_matrix_element_12 = MathTex(
-            r"\sin{\theta}", color=BLUE)
-        rotation_matrix_element_21 = MathTex(
-            r"-\sin{\theta}", color=RED)
-        rotation_matrix_element_22 = MathTex(
-            r"\cos{\theta}", color=BLUE)
-
-        rotation_matrix_group = VGroup(
-            MathTex("[").scale(3.0),
-            VGroup(rotation_matrix_element_11, rotation_matrix_element_21).arrange(
-                DOWN, buff=0.5),
-            VGroup(rotation_matrix_element_12, rotation_matrix_element_22).arrange(
-                DOWN, buff=0.5),
-            MathTex("]").scale(3.0),
-        ).arrange(RIGHT, buff=0.5).to_corner(UL)
-
-        self.play(Write(rotation_matrix_group),
-                  shear_matrix_group.animate.next_to(
-                      rotation_matrix_group, RIGHT),
+        self.play(Write(rotation_matrix_obj),
+                  shear_matrix_obj.animate.next_to(
+                      rotation_matrix_obj, RIGHT),
                   )
         self.wait(WAIT_TIME)
 
@@ -263,8 +197,6 @@ class VisualizingTransformationsWithExternalImage(Scene):
             ApplyMatrix(rotation_matrix, grid),
             ApplyMatrix(rotation_matrix, i_hat),
             ApplyMatrix(rotation_matrix, j_hat),
-            i_hat_label.animate.move_to(j_hat.get_end() + LEFT * 0.3),
-            i_hat_label.animate.move_to(i_hat.get_end() + DOWN * 0.3),
         )
         self.wait(WAIT_TIME)
 
@@ -280,9 +212,9 @@ class VisualizingTransformationsWithExternalImage(Scene):
         self.play(
             FadeOut(grid), FadeOut(i_hat), FadeOut(
                 j_hat), FadeOut(i_hat_label), FadeOut(j_hat_label),
-            FadeOut(shear_matrix_group), FadeOut(
+            FadeOut(shear_matrix_obj), FadeOut(
                 conclusion), FadeOut(shape_group),
-            FadeOut(rotation_matrix_group),
+            FadeOut(rotation_matrix_obj),
         )
 
 
@@ -310,8 +242,10 @@ class PropertiesOfLinearTransformations(MovingCameraScene):
         j_hat = Vector(UP, color=BLUE)
         i_hat_label = MathTex(r"\hat{i}", color=RED).next_to(
             i_hat.get_end(), DOWN)
+        i_hat_label.add_updater(lambda m: m.next_to(i_hat.get_end()))
         j_hat_label = MathTex(r"\hat{j}", color=BLUE).next_to(
             j_hat.get_end(), LEFT)
+        j_hat_label.add_updater(lambda m: m.next_to(j_hat.get_end()))
 
         # Initial Display
         self.play(FadeIn(grid), GrowArrow(i_hat), GrowArrow(
@@ -330,8 +264,6 @@ class PropertiesOfLinearTransformations(MovingCameraScene):
             ApplyMatrix(shear_matrix_1, grid),
             ApplyMatrix(shear_matrix_1, i_hat),
             ApplyMatrix(shear_matrix_1, j_hat),
-            i_hat_label.animate.move_to(i_hat.get_end() + DOWN * 0.3),
-            j_hat_label.animate.move_to(j_hat.get_end() + LEFT * 0.3),
         )
         self.next_section(name="Fixed Origin", skip_animations=False)
         self.wait(WAIT_TIME)
@@ -342,8 +274,6 @@ class PropertiesOfLinearTransformations(MovingCameraScene):
             ApplyMatrix(shear_matrix_2, grid),
             ApplyMatrix(shear_matrix_2, i_hat),
             ApplyMatrix(shear_matrix_2, j_hat),
-            i_hat_label.animate.move_to(i_hat.get_end() + DOWN * 0.3),
-            j_hat_label.animate.move_to(j_hat.get_end() + LEFT * 0.3),
         )
         self.next_section(name="Fixed Origin", skip_animations=False)
         self.wait(WAIT_TIME)
@@ -360,8 +290,6 @@ class PropertiesOfLinearTransformations(MovingCameraScene):
         self.play(grid.animate.shift(RIGHT * 2 + UP * 2),
                   i_hat.animate.shift(RIGHT * 2 + UP * 2),
                   j_hat.animate.shift(RIGHT * 2 + UP * 2),
-                  j_hat_label.animate.shift(RIGHT * 2 + UP * 2),
-                  i_hat_label.animate.shift(RIGHT * 2 + UP * 2),
                   )
         self.next_section(name="Fixed Origin", skip_animations=False)
         self.wait(WAIT_TIME)
@@ -405,8 +333,10 @@ class PropertiesOfLinearTransformations(MovingCameraScene):
         j_hat = Vector(UP, color=BLUE)
         i_hat_label = MathTex(r"\hat{i}", color=RED).next_to(
             i_hat.get_end(), DOWN)
+        i_hat_label.add_updater(lambda m: m.next_to(i_hat.get_end()))
         j_hat_label = MathTex(r"\hat{j}", color=BLUE).next_to(
             j_hat.get_end(), LEFT)
+        j_hat_label.add_updater(lambda m: m.next_to(j_hat.get_end()))
 
         # Display grid and highlight a line
         line = Line(grid.c2p(-1, -10), grid.c2p(-1, 10),
@@ -424,8 +354,6 @@ class PropertiesOfLinearTransformations(MovingCameraScene):
             ApplyMatrix(shear_matrix_3, i_hat),
             ApplyMatrix(shear_matrix_3, j_hat),
             ApplyMatrix(shear_matrix_3, line),
-            i_hat_label.animate.move_to(i_hat.get_end() + DOWN * 0.3),
-            j_hat_label.animate.move_to(j_hat.get_end() + LEFT * 0.3),
         )
         self.wait(WAIT_TIME)
 
@@ -492,8 +420,10 @@ class MatrixRepresentationOfTransformations(Scene):
         j_hat = Vector(UP, color=BLUE)
         i_hat_label = MathTex(r"\hat{i}", color=RED).next_to(
             i_hat.get_end(), DOWN)
+        i_hat_label.add_updater(lambda m: m.next_to(i_hat.get_end()))
         j_hat_label = MathTex(r"\hat{j}", color=BLUE).next_to(
             j_hat.get_end(), LEFT)
+        j_hat_label.add_updater(lambda m: m.next_to(j_hat.get_end()))
 
         # Display the grid and basis vectors
         self.play(FadeIn(grid), GrowArrow(i_hat), GrowArrow(
@@ -535,8 +465,6 @@ class MatrixRepresentationOfTransformations(Scene):
             ApplyMatrix(transformation_matrix, grid),
             ApplyMatrix(transformation_matrix, i_hat),
             ApplyMatrix(transformation_matrix, j_hat),
-            i_hat_label.animate.move_to(i_hat.get_end() + DOWN * 0.3),
-            j_hat_label.animate.move_to(j_hat.get_end() + LEFT * 0.3),
         )
         self.next_section()  # Transition after applying matrix transformation
 
@@ -578,8 +506,6 @@ class MatrixRepresentationOfTransformations(Scene):
             ApplyMatrix(transformation_matrix_2, grid),
             ApplyMatrix(transformation_matrix_2, i_hat),
             ApplyMatrix(transformation_matrix_2, j_hat),
-            i_hat_label.animate.move_to(i_hat.get_end() + DOWN * 0.3),
-            j_hat_label.animate.move_to(j_hat.get_end() + LEFT * 0.3),
         )
         self.next_section()  # Transition after applying second matrix transformation
 
@@ -629,10 +555,13 @@ class MatrixRepresentationOfTransformations3D(ThreeDScene):
         k_hat = Vector([0, 0, 1], color=GREEN).set_opacity(0.8)
         i_hat_label = MathTex(r"\hat{i}", color=RED).next_to(
             i_hat.get_end(), DOWN)
+        i_hat_label.add_updater(lambda m: m.next_to(i_hat.get_end(), DOWN))
         j_hat_label = MathTex(r"\hat{j}", color=BLUE).next_to(
             j_hat.get_end(), LEFT)
+        j_hat_label.add_updater(lambda m: m.next_to(j_hat.get_end(), LEFT))
         k_hat_label = MathTex(r"\hat{k}", color=GREEN).next_to(
             k_hat.get_end(), RIGHT)
+        k_hat_label.add_updater(lambda m: m.next_to(k_hat.get_end(), RIGHT))
 
         # Add axes, grid, and basis vectors
         self.play(FadeIn(grid_3d), GrowArrow(i_hat), GrowArrow(j_hat), GrowArrow(k_hat),
@@ -640,48 +569,20 @@ class MatrixRepresentationOfTransformations3D(ThreeDScene):
         self.next_section()  # Transition after displaying grid and vectors
 
         # Define a transformation matrix for 3D
-        transformation_matrix_3d = [[1, 0.5, 0], [0.5, 1, 0], [0, 0, 1.5]]
+        transformation_matrix_3d = [[-1, 0, 1], [0, 1.5, 0], [-0.2, 0, 0.7]]
 
         # Matrix Display with Colored Elements
         matrix_label = MathTex(r"\text{Transformation Matrix: }").to_corner(
-            UL).shift(DOWN * 0.2)
+            UL).shift(DOWN * 0.5)
         self.add_fixed_in_frame_mobjects(matrix_label)
         self.play(Write(matrix_label))
 
-        # Define individual matrix elements with colors for visual clarity
-        matrix_element_11 = MathTex(
-            str(transformation_matrix_3d[0][0]), color=RED)
-        matrix_element_12 = MathTex(
-            str(transformation_matrix_3d[0][1]), color=BLUE)
-        matrix_element_13 = MathTex(
-            str(transformation_matrix_3d[0][2]), color=GREEN)
-        matrix_element_21 = MathTex(
-            str(transformation_matrix_3d[1][0]), color=RED)
-        matrix_element_22 = MathTex(
-            str(transformation_matrix_3d[1][1]), color=BLUE)
-        matrix_element_23 = MathTex(
-            str(transformation_matrix_3d[1][2]), color=GREEN)
-        matrix_element_31 = MathTex(
-            str(transformation_matrix_3d[2][0]), color=RED)
-        matrix_element_32 = MathTex(
-            str(transformation_matrix_3d[2][1]), color=BLUE)
-        matrix_element_33 = MathTex(
-            str(transformation_matrix_3d[2][2]), color=GREEN)
-
         # Arrange the matrix elements in a grid to form the matrix
-        matrix_group = VGroup(
-            MathTex("[").scale(3.0),
-            VGroup(matrix_element_11, matrix_element_21,
-                   matrix_element_31).arrange(DOWN, buff=0.3),
-            VGroup(matrix_element_12, matrix_element_22,
-                   matrix_element_32).arrange(DOWN, buff=0.3),
-            VGroup(matrix_element_13, matrix_element_23,
-                   matrix_element_33).arrange(DOWN, buff=0.3),
-            MathTex("]").scale(3.0),
-        ).arrange(RIGHT, buff=0.5).next_to(matrix_label, RIGHT)
+        matrix_obj = Matrix(transformation_matrix_3d).set_column_colors(
+            RED, BLUE, GREEN).next_to(matrix_label, RIGHT)
 
-        self.add_fixed_in_frame_mobjects(matrix_group)
-        self.play(Write(matrix_group))
+        self.add_fixed_in_frame_mobjects(matrix_obj)
+        self.play(Write(matrix_obj))
         self.next_section()  # Transition after matrix display
 
         # Rotate camera around before transformation
@@ -697,9 +598,6 @@ class MatrixRepresentationOfTransformations3D(ThreeDScene):
             ApplyMatrix(transformation_matrix_3d, i_hat),
             ApplyMatrix(transformation_matrix_3d, j_hat),
             ApplyMatrix(transformation_matrix_3d, k_hat),
-            i_hat_label.animate.move_to(i_hat.get_end() + DOWN * 0.3),
-            j_hat_label.animate.move_to(j_hat.get_end() + LEFT * 0.3),
-            k_hat_label.animate.move_to(k_hat.get_end() + RIGHT * 0.3),
         )
         self.next_section()  # Transition after applying matrix transformation
 
@@ -708,4 +606,4 @@ class MatrixRepresentationOfTransformations3D(ThreeDScene):
         self.play(FadeOut(grid_3d), FadeOut(i_hat), FadeOut(j_hat), FadeOut(k_hat),
                   FadeOut(i_hat_label), FadeOut(
                       j_hat_label), FadeOut(k_hat_label),
-                  FadeOut(matrix_label), FadeOut(matrix_group))
+                  FadeOut(matrix_label), FadeOut(matrix_obj))
